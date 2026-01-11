@@ -1,22 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>LocalMind – Local-First AI Desktop Search</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;margin:0;padding:2rem;color:#222;background:#f7f7f7}
-    h1,h2,h3{color:#111}
-    code{background:#e7e7e7;padding:2px 4px;border-radius:3px}
-    pre{background:#2d2d2d;color:#f8f8f2;padding:1rem;border-radius:6px;overflow-x:auto}
-    a{color:#0066cc;text-decoration:none}
-    a:hover{text-decoration:underline}
-    .box{background:#fff;border:1px solid #ddd;border-radius:6px;padding:1.2rem;margin:1rem 0}
-    table{border-collapse:collapse;width:100%}
-    th,td{border:1px solid #ddd;padding:.5rem;text-align:left}
-    th{background:#f2f2f2}
-  </style>
-</head>
+
 <body>
 
 <h1>LocalMind – Local-First AI Desktop Search</h1>
