@@ -72,7 +72,11 @@ Before you start, ensure you have the following installed:
 
 #### 1. Clone the Repository
 ```bash
+<<<<<<< HEAD
 git clone https://github.com/yourusername/localmind.git
+=======
+git clone https://github.com/adamfutur/localmind.git
+>>>>>>> a2e01f0f68cd1d70a6ea1c950f85d0f09fe84e80
 cd localmind
 ```
 
