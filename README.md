@@ -46,7 +46,7 @@ The intelligence layer is powered by a dedicated Python sub-process managed by t
 - **Vector Search**: Uses **FAISS** indexers and high-quality **Sentence Transformers** models to create semantic maps of your data.
 - **Data Persistence**: Metadata is stored reliably in **SQLite**, while vector indices are managed on disk.
 
-### 💅 The Face: React & TypeScript
+### 😎 The Face: React & TypeScript
 The user interface is built with modern web technologies, delivering a sleek, responsive experience.
 - **Vite**: For instant development feedback and optimized builds.
 - **Interactive UI**: A rich text editor, real-time chat interface, and visualized search results.
@@ -72,8 +72,6 @@ Before you start, ensure you have the following installed:
 
 #### 1. Clone the Repository
 ```bash
-<<<<<<< HEAD
-git clone https://github.com/yourusername/localmind.git
 =======
 git clone https://github.com/adamfutur/localmind.git
 >>>>>>> a2e01f0f68cd1d70a6ea1c950f85d0f09fe84e80
