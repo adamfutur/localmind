@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![LocalMind Banner](🧠)
+🧠
 <!-- Replace with actual banner if available -->
 
 <h3>Your Second Brain. Running Locally.</h3>
