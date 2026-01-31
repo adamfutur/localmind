@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![LocalMind Banner](https://via.placeholder.com/1200x300.png?text=LocalMind+AI)
+![LocalMind Banner](🧠)
 <!-- Replace with actual banner if available -->
 
 <h3>Your Second Brain. Running Locally.</h3>
