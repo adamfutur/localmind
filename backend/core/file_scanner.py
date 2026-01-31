@@ -5,7 +5,8 @@ from datetime import datetime
 
 class FileScanner:
     def __init__(self, root_dirs: List[str] = None, ignore_patterns: List[str] = None):
-        self.root_dirs = root_dirs or [str(Path.home() / "Documents")] 
+        # Scan both Documents and Desktop by default so /api/index (no params) is useful
+        self.root_dirs = root_dirs or [str(Path.home() / "Documents"), str(Path.home() / "Desktop")]
         self.ignore_patterns = ignore_patterns or [".git", "node_modules", "__pycache__", ".venv", ".ds_store"]
 
     def scan(self) -> Generator[dict, None, None]:

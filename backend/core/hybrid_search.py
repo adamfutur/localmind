@@ -3,6 +3,7 @@ from backend.core.embeddings import EmbeddingModel
 from backend.db.database import SessionLocal
 from backend.db.models import FileMetadata
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 
 class HybridSearch:
     def __init__(self):
@@ -14,10 +15,15 @@ class HybridSearch:
         query_embedding = self.embedding_model.embed_query(query)
         semantic_results = self.vector_store.search(query_embedding, k=k)
         
-        # 2. Keyword Search (Basic Implementation)
-        # using SQL LIKE on filenames for now
+        # 2. Keyword Search (enhanced): match on filename OR path fragments
         db: Session = SessionLocal()
-        keyword_results = db.query(FileMetadata).filter(FileMetadata.filename.ilike(f"%{query}%")).limit(k).all()
+        normalized = query.strip()
+        keyword_results = db.query(FileMetadata).filter(
+            or_(
+                FileMetadata.filename.ilike(f"%{normalized}%"),
+                FileMetadata.path.ilike(f"%{normalized}%")
+            )
+        ).limit(k).all()
         db.close()
 
         # 3. Merge Strategies (Simple concatenation for now)

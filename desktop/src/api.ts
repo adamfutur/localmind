@@ -1,5 +1,5 @@
 // Basic wrapper around fetch to call FastAPI
-const API_BASE = "http://localhost:8000/api";
+const API_BASE = "http://localhost:8001/api";
 
 export async function searchFiles(query: string) {
     const response = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`);

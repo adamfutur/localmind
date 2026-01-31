@@ -4,7 +4,7 @@ import asyncio
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
 # OLLAMA_URL = "http://localhost:8080/v1/chat/completions" # Example for a different local LLM API (e.g., LM Studio)
-DEFAULT_MODEL = "phi3" # Or "tinyllama", "llama3", etc.
+DEFAULT_MODEL = "tinyllama" # Or "tinyllama", "llama3", etc.
 
 async def ask_llm(prompt: str, model: str = DEFAULT_MODEL, temperature: float = 0.7, max_tokens: int = 500) -> str:
     """

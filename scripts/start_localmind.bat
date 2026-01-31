@@ -5,7 +5,7 @@ cd /d "%~dp0.."
 set PATH=%USERPROFILE%\.cargo\bin;%PATH%
 
 echo Starting LocalMind Backend...
-start "LocalMind Backend" /B python -m backend.app
+start "LocalMind Backend" /B python -m backend.server
 
 echo Starting LocalMind UI (Web Mode)...
 cd desktop

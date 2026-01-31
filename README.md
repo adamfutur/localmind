@@ -1,164 +1,125 @@
-<<<<<<< HEAD
 # LocalMind
 
-Local-first AI system for your file system.
+<div align="center">
 
-## Setup
+![LocalMind Banner](https://via.placeholder.com/1200x300.png?text=LocalMind+AI)
+<!-- Replace with actual banner if available -->
 
-1. Install Python dependencies:
-   ```bash
-   pip install -r backend/requirements.txt
-   ```
+<h3>Your Second Brain. Running Locally.</h3>
 
-2. Install Node dependencies:
-   ```bash
-   cd desktop
-   npm install
-   ```
+![Rust](https://img.shields.io/badge/Built_With-Rust-b7410e?style=for-the-badge&logo=rust)
+![Python](https://img.shields.io/badge/AI_Engine-Python-3776ab?style=for-the-badge&logo=python)
+![React](https://img.shields.io/badge/Frontend-React-61dafb?style=for-the-badge&logo=react)
+![Tauri](https://img.shields.io/badge/Desktop-Tauri-ffd000?style=for-the-badge&logo=tauri)
 
-3. Run the application:
-   ```bash
-   scripts\start_localmind.bat
-   ```
+<p>
+  <strong>LocalMind</strong> is a powerful, privacy-focused AI assistant that lives on your filesystem. 
+  It indexes your digital life—documents, code, and notes—allowing you to search and chat with your data 
+  without a single byte ever leaving your machine.
+</p>
 
-## Architecture
-- **Backend**: FastAPI
-- **Frontend**: Tauri + React
-- **Vector Store**: FAISS
-=======
-
-<body>
-
-<h1>LocalMind – Local-First AI Desktop Search</h1>
-
-<p><strong>LocalMind</strong> is a private, offline intelligence layer that sits on top of your personal file system. It continuously indexes documents, images and code into a <strong>vector knowledge base</strong> and lets you search by <strong>semantic meaning</strong> instead of keywords – <em>nothing ever leaves your machine</em>.</p>
-
-<h2>✨ Key Features</h2>
-<ul>
-  <li>100 % offline – no cloud, no external APIs</li>
-  <li>Semantic search – find ideas, not just words</li>
-  <li>Incremental indexing – only new or changed files are re-processed</li>
-  <li>Cross-platform – Windows, macOS, Linux</li>
-  <li>Tiny footprint – single ~15 MB executable + a few Docker images for dev</li>
-</ul>
-
-<h2>🏗️ Architecture (dev mode)</h2>
-<div class="box">
-<pre>
-┌-----------------------------┐
-│  React + Vite (TypeScript) │  ←-- http://localhost:5173
-└------------┬----------------┘
-             │  REST
-┌------------┴----------------┐
-│  Go orchestrator (Gin)      │  ←-- http://localhost:8080
-│  - REST API                 │
-│  - job queue (Asynq)        │
-└------------┬----------------┘
-             │  gRPC
-┌------------┴----------------┐
-│  Python AI service          │  ←-- localhost:50051
-│  - embeddings               │
-│  - vector search            │
-└------------┬----------------┘
-             │  SQL / pgvector
-┌------------┴----------------┐
-│  PostgreSQL (+pgvector)     │
-│  Redis (task queue)         │
-└-----------------------------┘
-</pre>
-</div>
-<p>Production build packages <strong>Go binary + Python service + embedded DB</strong> into a single installer.</p>
-
-<h2>🚀 Quick Start (Windows / macOS / Linux)</h2>
-<p>Prerequisites: <a href="https://www.docker.com/products/docker-desktop/" target="_blank">Docker Desktop</a></p>
-<ol>
-  <li>Clone / unzip this repo</li>
-  <li>Open a terminal in the root folder</li>
-  <li>Spin everything up:
-    <pre><code>docker compose up --build</code></pre>
-  </li>
-  <li>Browse:
-    <ul>
-      <li>UI → <a href="http://localhost:5173" target="_blank">http://localhost:5173</a></li>
-      <li>Health check → <a href="http://localhost:8080/ping" target="_blank">http://localhost:8080/ping</a></li>
-      <li>gRPC reflection → <code>localhost:50051</code></li>
-    </ul>
-  </li>
-</ol>
-
-<h2>🔧 Development</h2>
-<table>
-  <thead><tr><th>Task</th><th>Command</th></tr></thead>
-  <tbody>
-    <tr><td>Frontend live reload</td><td><code>cd frontend &amp;&amp; npm install &amp;&amp; npm run dev</code></td></tr>
-    <tr><td>Go tests</td><td><code>cd orchestrator &amp;&amp; go test ./...</code></td></tr>
-    <tr><td>Python tests</td><td><code>cd ai-engine &amp;&amp; python -m pytest</code></td></tr>
-    <tr><td>Build Windows exe</td><td><code>cd orchestrator &amp;&amp; .\scripts\build.ps1</code></td></tr>
-    <tr><td>Build macOS / Linux bin</td><td><code>cd orchestrator &amp;&amp; ./scripts/build.sh</code></td></tr>
-  </tbody>
-</table>
-
-<h2>📦 Packaging</h2>
-<p>Ready-made installers are produced in <code>installer/</code>:</p>
-<ul>
-  <li><strong>Windows</strong> – WiX tool-set → <code>localmind-x64.msi</code></li>
-  <li><strong>macOS</strong> – <code>create-dmg</code> → <code>LocalMind.dmg</code></li>
-  <li><strong>Linux</strong> – <code>dpkg-deb</code> → <code>localmind_amd64.deb</code></li>
-</ul>
-<p>Build script (CI or local):</p>
-<div class="box">
-  <code>.\scripts\release.ps1</code> (Windows) or <code>./scripts/release.sh</code> (Unix)
 </div>
 
-<h2>🧪 API Examples</h2>
-<p><strong>REST (Go orchestrator)</strong></p>
-<pre><code>GET  /api/search?q=holiday photos&amp;top=10
-POST /api/index { "path": "C:\Users\me\Docs" }</code></pre>
-<p><strong>gRPC (Python AI)</strong> – see <code>ai-engine/proto/ai.proto</code></p>
-<pre><code>from ai_pb2 import EmbedRequest
-stub.Embed(EmbedRequest(text="sunset on the beach"))</code></pre>
+---
 
-<h2>🔒 Privacy &amp; Security</h2>
-<ul>
-  <li>Every byte stays on your disk.</li>
-  <li>No telemetry, no phoning home.</li>
-  <li>File-system access <strong>read-only</strong> (never modifies your data).</li>
-  <li>gRPC/REST bound to <strong>localhost only</strong> in production builds.</li>
-</ul>
+## ⚡ Why LocalMind?
 
-<h2>🛠️ Tech Stack</h2>
-<table>
-  <thead><tr><th>Layer</th><th>Tech</th></tr></thead>
-  <tbody>
-    <tr><td>Frontend</td><td>React 18, Vite, TypeScript, Axios</td></tr>
-    <tr><td>Orchestrator</td><td>Go 1.22, Gin, Asynq (Redis), pgx, sqlc</td></tr>
-    <tr><td>AI Engine</td><td>Python 3.12, FastAPI, sentence-transformers, gRPC</td></tr>
-    <tr><td>Database</td><td>PostgreSQL 15 + pgvector</td></tr>
-    <tr><td>Queue</td><td>Redis 7</td></tr>
-    <tr><td>Packaging</td><td>Docker, PyInstaller (Python), WiX, dmg, deb</td></tr>
-  </tbody>
-</table>
+We believe your personal data should remain **personal**. Cloud-based AI is powerful, but it requires trust. LocalMind removes the need for trust by running the entire intelligence stack on your own hardware.
 
-<h2>📋 Road-map</h2>
-<ul>
-  <li>[ ] Live file-system watcher (fsnotify)</li>
-  <li>[ ] OCR &amp; image embedding</li>
-  <li>[ ] Optional cloud <strong>self-host</strong> sync (encrypted)</li>
-  <li>[ ] Full-text + vector hybrid ranking</li>
-  <li>[ ] Plug-in system (Go plug-ins / WASM)</li>
-</ul>
+- **🔒 Privacy First**: Zero data egress. Your vectors, your embeddings, your chats—all stay local.
+- **🚀 Blazing Fast**: No network latency. Search results are instant.
+- **🧠 Semantic Intelligence**: Don't just search for keywords; search for *ideas* and *concepts*.
 
-<h2>🤝 Contributing</h2>
-<ol>
-  <li>Fork &amp; create a feature branch</li>
-  <li>Add tests (Go: <code>*_test.go</code>, Python: <code>pytest</code>)</li>
-  <li>Open a PR – CI runs lint + tests automatically</li>
-</ol>
+## 🏗️ Engineering & Architecture
 
-<h2>📄 License</h2>
-<p>MIT – see <a href="LICENSE">LICENSE</a></p>
-<p><strong>Star ⭐ the repo if you find it useful!</strong><br>Issues &amp; feedback welcome.</p>
+LocalMind is engineered for performance and security, leveraging the best tools for each layer of the stack.
 
-</body>
-</html>
->>>>>>> 832899d6f77420dbb32f8edca92e0ad2aa4a038a
+### 🛡️ The Core: Rust & Tauri
+At the heart of LocalMind is **Rust**, chosen for its unparalleled memory safety and performance.
+- **Ultralight Footprint**: Unlike Electron apps that eat RAM, our Rust-based backend ensures the app runs efficiently in the background.
+- **Native Security**: Rust's strict compile-time checks prevent entire classes of memory safety bugs.
+- **OS Integration**: Handles global shortcuts, system tray, and native file system events with the speed of compiled code.
+
+### 🧠 The Brain: Python & FastAPI
+The intelligence layer is powered by a dedicated Python sub-process managed by the Rust core.
+- **FastAPI**: Exposes a high-performance local API for the frontend.
+- **Vector Search**: Uses **FAISS** indexers and high-quality **Sentence Transformers** models to create semantic maps of your data.
+- **Data Persistence**: Metadata is stored reliably in **SQLite**, while vector indices are managed on disk.
+
+### 💅 The Face: React & TypeScript
+The user interface is built with modern web technologies, delivering a sleek, responsive experience.
+- **Vite**: For instant development feedback and optimized builds.
+- **Interactive UI**: A rich text editor, real-time chat interface, and visualized search results.
+
+```mermaid
+graph TD
+    UI[⚛️ React Frontend] <-->|IPC| Core[🦀 Rust / Tauri Core]
+    Core <-->|HTTP/REST| Brain[🐍 Python AI Engine]
+    Brain <-->|SQL| DB[(SQLite Metadata)]
+    Brain <-->|Read| FS[📂 Local File System]
+    Brain <-->|Query| Vector[(FAISS Vector Store)]
+```
+
+## 🚀 Getting Started
+
+### Prerequisites
+Before you start, ensure you have the following installed:
+*   **Rust**: `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`
+*   **Node.js**: `v18+`
+*   **Python**: `3.10+`
+
+### Installation Guide
+
+#### 1. Clone the Repository
+```bash
+git clone https://github.com/yourusername/localmind.git
+cd localmind
+```
+
+#### 2. Set Up the AI Engine (Backend)
+```bash
+# Create and activate virtual environment
+python -m venv venv
+# Windows: .\venv\Scripts\activate | Unix: source venv/bin/activate
+
+# Install dependencies (Torch, Transformers, FastAPI)
+pip install -r backend/requirements.txt
+```
+
+#### 3. Set Up the Desktop App (Frontend)
+```bash
+cd desktop
+npm install
+```
+
+#### 4. Ignite 🚀
+You can run the full system with a single command:
+
+**Windows**:
+```bash
+.\scripts\start_localmind.bat
+```
+
+**Manual Start (Dev Mode)**:
+1.  Start Backend: `python -m backend.app`
+2.  Start Frontend: `cd desktop && npm run tauri dev`
+
+## 🤝 Contributing
+
+We welcome contributions! Whether it's optimizing Rust memory usage, improving Python vectorization algorithms, or polishing the UI.
+
+1.  Fork the Project
+2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4.  Push to the Branch (`git push origin feature/AmazingFeature`)
+5.  Open a Pull Request
+
+## 📄 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
+
+---
+
+<div align="center">
+  <sub>Built with ❤️ by pure local compute.</sub>
+</div>
