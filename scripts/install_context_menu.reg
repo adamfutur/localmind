@@ -1,0 +1,8 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\Directory\Background\shell\LocalMind]
+@="Ask LocalMind"
+"Icon"="%USERPROFILE%\\Desktop\\Predictive Modeling\\localmind\\desktop\\src-tauri\\icons\\icon.ico"
+
+[HKEY_CLASSES_ROOT\Directory\Background\shell\LocalMind\command]
+@="\"C:\\Users\\imlou\\Desktop\\Predictive Modeling\\localmind\\scripts\\start_localmind.bat\" \"%V\""

@@ -1,0 +1,9 @@
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+.venv
+node_modules/
+dist/
+src-tauri/target/
+data/

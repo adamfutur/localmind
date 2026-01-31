@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+sentence-transformers
+faiss-cpu
+sqlalchemy
+python-multipart
+requests
+python-dotenv
+openai
+pydantic
+langchain
+langchain-community
+langchain-text-splitters
