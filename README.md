@@ -74,7 +74,6 @@ Before you start, ensure you have the following installed:
 ```bash
 =======
 git clone https://github.com/adamfutur/localmind.git
->>>>>>> a2e01f0f68cd1d70a6ea1c950f85d0f09fe84e80
 cd localmind
 ```
 
