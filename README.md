@@ -26,9 +26,9 @@
 
 We believe your personal data should remain **personal**. Cloud-based AI is powerful, but it requires trust. LocalMind removes the need for trust by running the entire intelligence stack on your own hardware.
 
-- ** Privacy First**: Zero data egress. Your vectors, your embeddings, your chats—all stay local.
-- ** Blazing Fast**: No network latency. Search results are instant.
-- ** Semantic Intelligence**: Don't just search for keywords; search for *ideas* and *concepts*.
+- **Privacy First**: Zero data egress. Your vectors, your embeddings, your chats—all stay local.
+- **Blazing Fast**: No network latency. Search results are instant.
+- **Semantic Intelligence**: Don't just search for keywords; search for *ideas* and *concepts*.
 
 ##  Engineering & Architecture
 
