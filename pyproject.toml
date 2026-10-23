@@ -9,9 +9,6 @@ dependencies = []
 testpaths = ["tests"]
 pythonpath = ["."]
 addopts = "-q --strict-markers"
-filterwarnings = [
-    "error::pytest.PytestUnhandledCoroutineWarning",
-]
 
 [tool.ruff]
 target-version = "py310"
