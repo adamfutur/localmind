@@ -51,8 +51,10 @@ Results:
   - `py -m scripts.test_content_search`
   - `py -m scripts.test_document_search`
 
-The GitHub Actions workflow has been added but has not yet been observed on a
-remote runner. Its first run on `origin/v2` is the final LM-002 check.
+The GitHub Actions workflow has been added. Its first run on `origin/v2`
+(`d53aded`) did not start: GitHub reported that the account is locked due to a
+billing issue. Re-run the workflow after resolving the account billing block;
+this is an external runner issue, not a test or build failure.
 
 ### Deliberately not done in this branch yet
 
