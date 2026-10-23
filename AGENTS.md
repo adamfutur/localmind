@@ -9,6 +9,11 @@ pip install -r backend/requirements.txt   # not the root requirements.txt
 python -m backend.server                  # API on 127.0.0.1:8001, auto-reload
 python check_db.py                        # verify SQLite tables/columns
 
+# v2 quality gates (active backend + tests)
+pip install -r backend/requirements-dev.txt
+python -m ruff check backend tests
+python -m pytest
+
 cd desktop
 npm install
 npm run dev          # web UI only, http://localhost:1420

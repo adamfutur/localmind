@@ -7,3 +7,7 @@ node_modules/
 dist/
 src-tauri/target/
 data/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/

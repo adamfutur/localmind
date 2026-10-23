@@ -22,6 +22,17 @@
 
 ---
 
+> [!NOTE]
+> **v2 foundation branch:** this branch adds the architecture decisions, automated
+> tests, linting, and CI baseline for LocalMind v2. See
+> [CHANGELOG.md](CHANGELOG.md) for the exact changes and
+> [ARCHITECTURE.md](ARCHITECTURE.md) for the target design.
+>
+> The active API is `python -m backend.server` on `127.0.0.1:8001`. Some sections
+> below still describe the legacy startup path and will be corrected in LM-003.
+> Cloud reasoning is a provisional design decision, not implemented on this
+> branch; local search and indexing remain the working product.
+
 ##  Why LocalMind?
 
 We believe your personal data should remain **personal**. Cloud-based AI is powerful, but it requires trust. LocalMind removes the need for trust by running the entire intelligence stack on your own hardware.

@@ -1,6 +1,9 @@
-from sqlalchemy import Column, Integer, String, DateTime, Text
 from datetime import datetime
+
+from sqlalchemy import Column, DateTime, Integer, String, Text
+
 from backend.db.database import Base
+
 
 class FileMetadata(Base):
     __tablename__ = "files"

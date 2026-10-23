@@ -33,7 +33,7 @@ class TextLoader:
             if ext == ".odt":
                 return TextLoader._load_odt(path)
             if ext in SUPPORTED_EXTENSIONS and ext not in BINARY_DOCUMENT_EXTENSIONS:
-                with open(path, "r", encoding="utf-8", errors="ignore") as f:
+                with open(path, encoding="utf-8", errors="ignore") as f:
                     return f.read()
             # .doc and .rtf are indexed for filename/path search. Their
             # content needs a separate converter, so they are metadata-only.

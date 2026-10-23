@@ -1,15 +1,14 @@
 from fastapi import FastAPI
-from backend.api import search, index, ask
+from fastapi.middleware.cors import CORSMiddleware
+
+from backend.api import ask, index, search
 from backend.config import DATA_DIR
+from backend.db import models  # noqa: F401  (register SQLAlchemy models)
 from backend.db.database import Base, engine
-from backend.db import models  # Explicit import to register models
 
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="LocalMind API", version="0.1.0")
-
-# Enable CORS for frontend
-from fastapi.middleware.cors import CORSMiddleware
 
 app.add_middleware(
     CORSMiddleware,

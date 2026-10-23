@@ -1,11 +1,12 @@
+import threading
+
 from fastapi import APIRouter, Query
-from backend.core.hybrid_search import HybridSearch
 from pydantic import BaseModel
-from typing import List
+
+from backend.core.hybrid_search import HybridSearch
 from backend.core.vector_store import get_vector_store
 from backend.db.database import SessionLocal
 from backend.db.models import FileMetadata
-import threading
 
 router = APIRouter()
 
@@ -28,7 +29,7 @@ class SearchResult(BaseModel):
     score: float
     content_snippet: str
 
-@router.get("/search", response_model=List[SearchResult])
+@router.get("/search", response_model=list[SearchResult])
 async def search(q: str = Query(..., min_length=1), limit: int = 10):
     results = get_search_engine().search(q, k=limit)
     return results

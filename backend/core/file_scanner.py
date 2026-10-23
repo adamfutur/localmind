@@ -1,12 +1,13 @@
 import os
-from pathlib import Path
-from typing import List, Generator
+from collections.abc import Generator
 from datetime import datetime
+from pathlib import Path
 
 from backend.config import MAX_FILE_SIZE_BYTES, SUPPORTED_EXTENSIONS
 
+
 class FileScanner:
-    def __init__(self, root_dirs: List[str] = None, ignore_patterns: List[str] = None):
+    def __init__(self, root_dirs: list[str] = None, ignore_patterns: list[str] = None):
         # Scan both Documents and Desktop by default so /api/index (no params) is useful
         self.root_dirs = root_dirs or [str(Path.home() / "Documents"), str(Path.home() / "Desktop")]
         self.ignore_patterns = ignore_patterns or [

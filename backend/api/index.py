@@ -1,18 +1,19 @@
-from fastapi import APIRouter, BackgroundTasks, HTTPException, Query
-from backend.core.file_scanner import FileScanner
-from backend.core.text_loader import TextLoader
-from backend.core.chunker import Chunker
-from backend.core.embeddings import get_embedding_model
-from backend.core.vector_store import get_vector_store
-from backend.db.database import SessionLocal
-from backend.db.models import FileMetadata
-from backend.config import MAX_FILE_SIZE_BYTES, SUPPORTED_EXTENSIONS
-from sqlalchemy.orm import Session
-from datetime import datetime
 import os
 import threading
 import time
-from typing import List, Optional
+from datetime import datetime
+
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Query
+from sqlalchemy.orm import Session
+
+from backend.config import MAX_FILE_SIZE_BYTES, SUPPORTED_EXTENSIONS
+from backend.core.chunker import Chunker
+from backend.core.embeddings import get_embedding_model
+from backend.core.file_scanner import FileScanner
+from backend.core.text_loader import TextLoader
+from backend.core.vector_store import get_vector_store
+from backend.db.database import SessionLocal
+from backend.db.models import FileMetadata
 
 router = APIRouter()
 
@@ -28,7 +29,7 @@ def _log(message: str) -> None:
         print(message.encode("ascii", "backslashreplace").decode("ascii"))
 
 
-def process_indexing(root_dirs: Optional[List[str]] = None):
+def process_indexing(root_dirs: list[str] | None = None):
     """
     Perform indexing over the provided root directories. If none provided,
     FileScanner will use its default roots.
@@ -38,7 +39,7 @@ def process_indexing(root_dirs: Optional[List[str]] = None):
         return
 
     started = time.perf_counter()
-    db: Optional[Session] = None
+    db: Session | None = None
     vector_store = None
     embedded_files = 0
 
@@ -111,7 +112,7 @@ def process_indexing(root_dirs: Optional[List[str]] = None):
 
 
 @router.post("/index")
-async def trigger_indexing(background_tasks: BackgroundTasks, path: Optional[str] = None):
+async def trigger_indexing(background_tasks: BackgroundTasks, path: str | None = None):
     """
     Trigger background indexing.
     If 'path' is provided, it must be an existing directory. You can pass multiple paths
@@ -119,7 +120,7 @@ async def trigger_indexing(background_tasks: BackgroundTasks, path: Optional[str
       /api/index?path=C:\\Users\\me\\Desktop;D:\\Docs
     If not provided, defaults from FileScanner are used (e.g., Documents).
     """
-    root_dirs: Optional[List[str]] = None
+    root_dirs: list[str] | None = None
     if path:
         # Split by ';' or ',' and normalize/validate
         raw_parts = [p.strip() for p in path.replace(',', ';').split(';') if p.strip()]
@@ -196,7 +197,10 @@ async def index_path(path: str = Query(..., min_length=1)):
                 metas = [{"path": file_path, "text": c} for c in chunks]
                 vector_store.add(embeddings, metas)
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Indexing failed for {file_path}: {e}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Indexing failed for {file_path}: {e}",
+            ) from e
 
     try:
         if os.path.isdir(path):

@@ -1,6 +1,9 @@
 import os
 import re
 
+from sqlalchemy import or_
+from sqlalchemy.orm import Session
+
 from backend.config import SEMANTIC_MAX_DISTANCE, SEMANTIC_RELATIVE_MARGIN
 from backend.core.embeddings import get_embedding_model
 from backend.core.vector_store import (
@@ -10,8 +13,6 @@ from backend.core.vector_store import (
 )
 from backend.db.database import SessionLocal
 from backend.db.models import FileMetadata
-from sqlalchemy import or_
-from sqlalchemy.orm import Session
 
 # Reciprocal-rank fusion constant. Keyword hits get a slight boost because
 # exact keyword matches are usually what the user means when they type terms.

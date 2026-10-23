@@ -1,8 +1,9 @@
-from fastapi import APIRouter, HTTPException, status
-from pydantic import BaseModel, constr
 import asyncio
 import os
 import time
+
+from fastapi import APIRouter, HTTPException, status
+from pydantic import BaseModel, constr
 
 # Import au niveau module pour détecter les problèmes au démarrage
 try:
@@ -65,10 +66,10 @@ async def ask_question(req: AskRequest) -> AskResponse:
         raise HTTPException(
             status_code=status.HTTP_504_GATEWAY_TIMEOUT,
             detail=f"Timeout de l'LLM après {LLM_TIMEOUT_SECONDS} secondes."
-        )
+        ) from None
     except Exception as e:
         # Erreur backend LLM -> 502
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail=f"Erreur du backend LLM: {str(e)}"
-        )
+        ) from e
