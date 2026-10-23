@@ -20,6 +20,14 @@ router = APIRouter()
 _indexing_lock = threading.Lock()
 
 
+def _log(message: str) -> None:
+    """Print without crashing on Windows console encodings (cp1252)."""
+    try:
+        print(message)
+    except UnicodeEncodeError:
+        print(message.encode("ascii", "backslashreplace").decode("ascii"))
+
+
 def process_indexing(root_dirs: Optional[List[str]] = None):
     """
     Perform indexing over the provided root directories. If none provided,
@@ -44,43 +52,51 @@ def process_indexing(root_dirs: Optional[List[str]] = None):
         db = SessionLocal()
 
         for file_info in scanner.scan():
-            # Check if already indexed or modified
-            existing = db.query(FileMetadata).filter(FileMetadata.path == file_info['path']).first()
-            if existing and existing.modified_at == file_info['modified_at']:
+            try:
+                # Check if already indexed or modified
+                existing = db.query(FileMetadata).filter(FileMetadata.path == file_info['path']).first()
+                if existing and existing.modified_at == file_info['modified_at']:
+                    continue
+
+                _log(f"Indexing: {file_info['path']}")
+
+                # Load Content
+                text = loader.load(file_info['path'])
+
+                # Update DB
+                if not existing:
+                    meta = FileMetadata(**file_info)
+                    db.add(meta)
+                else:
+                    for k, v in file_info.items():
+                        setattr(existing, k, v)
+
+                db.commit()
+
+                # Vectorize
+                if text:
+                    chunks = chunker.chunk(text)
+                    embeddings = embedder.embed(chunks)
+
+                    # Store metadata for each chunk
+                    metas = []
+                    for chunk in chunks:
+                        metas.append({
+                            "path": file_info['path'],
+                            "text": chunk
+                        })
+
+                    vector_store.add(embeddings, metas)
+                    embedded_files += 1
+            except Exception as exc:
+                # One malformed/unsupported document must not abort the whole
+                # indexing run. Filename metadata may still have been committed.
+                if db is not None:
+                    db.rollback()
+                _log(f"[Index] Skipping {file_info['path']}: {exc}")
                 continue
 
-            print(f"Indexing: {file_info['path']}")
-
-            # Load Content
-            text = loader.load(file_info['path'])
-
-            # Update DB
-            if not existing:
-                meta = FileMetadata(**file_info)
-                db.add(meta)
-            else:
-                for k, v in file_info.items():
-                    setattr(existing, k, v)
-
-            db.commit()
-
-            # Vectorize
-            if text:
-                chunks = chunker.chunk(text)
-                embeddings = embedder.embed(chunks)
-
-                # Store metadata for each chunk
-                metas = []
-                for chunk in chunks:
-                    metas.append({
-                        "path": file_info['path'],
-                        "text": chunk
-                    })
-
-                vector_store.add(embeddings, metas)
-                embedded_files += 1
-
-        print(
+        _log(
             f"Indexing Complete: {embedded_files} files embedded in "
             f"{time.perf_counter() - started:.1f}s"
         )

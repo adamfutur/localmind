@@ -33,6 +33,9 @@ npm run build        # tsc typecheck + vite build
 - `/api/index?path=` accepts `;`- or `,`-separated directories. Without `path` it scans `~/Documents` and `~/Desktop` — on this Windows checkout that includes the repo.
 - `desktop/src/api.ts` hardcodes `http://localhost:8001/api`; `tauri.conf.json` CSP allows both 8000 and 8001. Keep them in sync if you change the port.
 - The UI calls `GET /api/search` and renders file results; it does not call `/api/ask`. `/api/ask` remains available for optional LLM use.
+- Content search indexes PDF (`pypdf`), DOCX (`python-docx`), and ODT text, in addition to plain-text/code files. `.doc` and `.rtf` are filename/metadata-only until a converter is added. `TextLoader` must branch before the plain-text reader for binary documents.
+- Document-intent queries (`cv`, `resume`, `curriculum vitae`, `pdf`, `docx`, `odt`, `rtf`) deliberately return document files by name first; `mon cv` is treated as `cv`. CV intent additionally requires a CV/resume filename alias (or a CV heading in content), so unrelated documents that merely mention "CV" are not returned. File-type words in a query are filters, not filename substrings.
+- The scanner ignores vendor/generated trees (`glassfish`, `node_modules`, `site-packages`, `.kilo`, etc.) and lock/minified files. Search also hides those paths unless the query names them.
 - `HybridSearch` combines semantic hits with filename/path keyword matches and falls back to keyword-only if no embedding backend is available.
 
 ## Gotchas

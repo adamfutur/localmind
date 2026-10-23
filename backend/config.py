@@ -27,6 +27,12 @@ VECTOR_SAVE_INTERVAL = int(os.getenv("LOCALMIND_VECTOR_SAVE_INTERVAL", "2000"))
 # Bounded cache for repeated query embeddings (cold queries still hit the model).
 QUERY_CACHE_SIZE = int(os.getenv("LOCALMIND_QUERY_CACHE_SIZE", "256"))
 
+# Accuracy gates for semantic hits. Raw FAISS L2 distance; lower is better.
+# Results beyond this distance are usually unrelated noise. The relative
+# margin also drops results that are much weaker than the best semantic hit.
+SEMANTIC_MAX_DISTANCE = float(os.getenv("LOCALMIND_SEMANTIC_MAX_DISTANCE", "1.30"))
+SEMANTIC_RELATIVE_MARGIN = float(os.getenv("LOCALMIND_SEMANTIC_RELATIVE_MARGIN", "0.35"))
+
 # Only scan/parse files we can actually embed, and skip huge files.
 SUPPORTED_EXTENSIONS = frozenset({
     ".txt", ".md", ".markdown", ".rst",
@@ -35,6 +41,9 @@ SUPPORTED_EXTENSIONS = frozenset({
     ".html", ".htm", ".css", ".scss", ".less",
     ".json", ".jsonl", ".csv", ".xml", ".yaml", ".yml", ".toml", ".ini",
     ".cfg", ".conf", ".sql", ".sh", ".ps1", ".bat", ".log",
+    # Documents. PDF/DOCX/ODT are text-extracted; DOC/RTF still appear in
+    # filename search even when their content cannot be extracted.
+    ".pdf", ".docx", ".doc", ".odt", ".rtf",
 })
 MAX_FILE_SIZE_MB = int(os.getenv("LOCALMIND_MAX_FILE_MB", "2"))
 MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024

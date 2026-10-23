@@ -12,6 +12,14 @@ class FileScanner:
         self.ignore_patterns = ignore_patterns or [
             ".git", "node_modules", "__pycache__", ".venv", "venv",
             ".ds_store", "dist", "build", "target", ".next", "coverage",
+            # Installed/vendor trees that otherwise flood search results.
+            "glassfish", "javadb", "javadoc", "site-packages",
+            "bower_components", "vendor", "pods", "deriveddata",
+            ".vscode", ".idea", ".kilo", ".cache", ".npm", ".yarn",
+            ".pnpm-store", "virtual machines",
+            # Generated/lock files are not useful search results.
+            "package-lock.json", "yarn.lock", "pnpm-lock.yaml", "poetry.lock",
+            "cargo.lock", ".min.", ".map",
         ]
 
     def scan(self) -> Generator[dict, None, None]:
@@ -20,12 +28,19 @@ class FileScanner:
                 continue
                 
             for root, dirs, files in os.walk(root_dir):
-                # Filter directories
-                dirs[:] = [d for d in dirs if d not in self.ignore_patterns]
+                # Filter directories (substring match, so glassfish-7.x is
+                # ignored too, not just a directory literally named glassfish).
+                dirs[:] = [
+                    d for d in dirs
+                    if not any(pattern in d.casefold() for pattern in self.ignore_patterns)
+                ]
                 
                 for file in files:
+                    file_lower = file.casefold()
                     # Basic extension filter for now
-                    if file.startswith(".") or any(p in file for p in self.ignore_patterns):
+                    if file.startswith(".") or any(
+                        pattern in file_lower for pattern in self.ignore_patterns
+                    ):
                         continue
 
                     # Skip files we cannot extract text from before doing any I/O.
