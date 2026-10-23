@@ -1,38 +1,62 @@
-from backend.core.vector_store import VectorStore
-from backend.core.embeddings import EmbeddingModel
+from backend.core.vector_store import get_vector_store
+from backend.core.embeddings import get_embedding_model
 from backend.db.database import SessionLocal
 from backend.db.models import FileMetadata
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 
+
 class HybridSearch:
     def __init__(self):
-        self.vector_store = VectorStore()
-        self.embedding_model = EmbeddingModel()
+        # Cheap to construct: the embedding model is loaded on first use.
+        self.vector_store = get_vector_store()
+        self._embedding_model = None
+        self._semantic_disabled = False
+
+    def _embedding(self):
+        if self._embedding_model is None:
+            self._embedding_model = get_embedding_model()
+        return self._embedding_model
 
     def search(self, query: str, k=10):
-        # 1. Semantic Search
-        query_embedding = self.embedding_model.embed_query(query)
-        semantic_results = self.vector_store.search(query_embedding, k=k)
-        
-        # 2. Keyword Search (enhanced): match on filename OR path fragments
-        db: Session = SessionLocal()
         normalized = query.strip()
-        keyword_results = db.query(FileMetadata).filter(
-            or_(
-                FileMetadata.filename.ilike(f"%{normalized}%"),
-                FileMetadata.path.ilike(f"%{normalized}%")
-            )
-        ).limit(k).all()
-        db.close()
+        if not normalized:
+            return []
 
-        # 3. Merge Strategies (Simple concatenation for now)
-        # Ideally we would re-rank or normalize scores
-        
+        # 1. Semantic Search. If no embedding backend is available, keep working
+        # with filename/path matches instead of failing the whole request.
+        semantic_results = []
+        if not self._semantic_disabled:
+            try:
+                query_embedding = self._embedding().embed_query(query)
+                semantic_results = self.vector_store.search(query_embedding, k=k)
+            except Exception as exc:
+                self._semantic_disabled = True
+                print(f"[Search] Semantic search unavailable ({exc}); using keyword search only.")
+
+        # 2. Keyword Search: match any query word against filename or path.
+        terms = [term for term in normalized.split() if term] or [normalized]
+        filters = []
+        for term in terms:
+            filters.append(FileMetadata.filename.ilike(f"%{term}%"))
+            filters.append(FileMetadata.path.ilike(f"%{term}%"))
+
+        db: Session = SessionLocal()
+        try:
+            keyword_results = db.query(FileMetadata).filter(
+                or_(*filters)
+            ).limit(k).all()
+            keyword_rows = [
+                {"path": row.path, "filename": row.filename}
+                for row in keyword_results
+            ]
+        finally:
+            db.close()
+
+        # 3. Merge (semantic first, then keyword matches not already listed)
         final_results = []
         seen_paths = set()
 
-        # Add semantic results first
         for res in semantic_results:
             path = res['metadata']['path']
             if path not in seen_paths:
@@ -44,15 +68,14 @@ class HybridSearch:
                 })
                 seen_paths.add(path)
 
-        # Add keyword results
-        for res in keyword_results:
-            if res.path not in seen_paths:
+        for row in keyword_rows:
+            if row['path'] not in seen_paths:
                 final_results.append({
                     "type": "keyword",
-                    "path": res.path,
-                    "score": 0.0, # Placeholder
-                    "content_snippet": f"Filename match: {res.filename}"
+                    "path": row['path'],
+                    "score": 0.0,  # No similarity score for a filename match
+                    "content_snippet": f"Filename match: {row['filename']}"
                 })
-                seen_paths.add(res.path)
+                seen_paths.add(row['path'])
 
         return final_results[:k]

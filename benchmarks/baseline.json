@@ -1,0 +1,27 @@
+{
+  "config": {
+    "documents": 500,
+    "queries": 10,
+    "repetitions": 10,
+    "k": 5
+  },
+  "stages": {
+    "embed": {
+      "median_ms": 12.287,
+      "p95_ms": 15.005
+    },
+    "faiss": {
+      "median_ms": 0.18,
+      "p95_ms": 0.288
+    },
+    "map_lookup": {
+      "median_ms": 0.043,
+      "p95_ms": 0.203
+    },
+    "search_index_total": {
+      "median_ms": 12.63,
+      "p95_ms": 15.648
+    }
+  },
+  "recall_at_k": 1.0
+}

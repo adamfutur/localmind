@@ -1,13 +1,14 @@
-fastapi
-uvicorn
-sentence-transformers
-faiss-cpu
-sqlalchemy
-python-multipart
-requests
-python-dotenv
-openai
-pydantic
-langchain
-langchain-community
-langchain-text-splitters
+# Active backend only. Use this file, not the root requirements.txt.
+fastapi>=0.110
+uvicorn[standard]>=0.29
+sqlalchemy>=2.0
+faiss-cpu>=1.8
+
+# FastEmbed/ONNX keeps CPU + RAM usage low on laptops. The code falls back to
+# sentence-transformers if it is already installed, but that pulls in PyTorch.
+fastembed>=0.3
+langchain-text-splitters>=0.2
+
+requests>=2.31
+pydantic>=2
+python-multipart>=0.0.9

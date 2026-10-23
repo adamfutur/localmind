@@ -30,7 +30,7 @@
             ]
         },
         "security": {
-            "csp": "default-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:8000; connect-src 'self' http://localhost:8000 ws://localhost:1420"
+            "csp": "default-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:8000 http://localhost:8001; connect-src 'self' http://localhost:8000 http://localhost:8001 ws://localhost:1420"
         },
         "windows": [
             {

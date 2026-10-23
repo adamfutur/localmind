@@ -22,7 +22,7 @@ export default function SearchBox({ onSearch, isLoading }: SearchBoxProps) {
                     type="text"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Ask anything about your files..."
+                    placeholder="Search your files by name or keyword..."
                     style={{
                         flex: 1,
                         padding: '12px',
@@ -45,7 +45,7 @@ export default function SearchBox({ onSearch, isLoading }: SearchBoxProps) {
                         fontWeight: 'bold'
                     }}
                 >
-                    {isLoading ? 'Thinking...' : 'Ask'}
+                    {isLoading ? 'Searching...' : 'Search'}
                 </button>
             </div>
         </form>

@@ -1,6 +1,8 @@
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, constr
 import asyncio
+import os
+import time
 
 # Import au niveau module pour détecter les problèmes au démarrage
 try:
@@ -12,8 +14,9 @@ except Exception as import_err:
 router = APIRouter()
 
 # Configuration basique (peut être déplacée vers config/env)
-DEFAULT_MAX_TOKENS = 1024
-LLM_TIMEOUT_SECONDS = 20  # Ajuster selon performances de l'LLM
+# 1024 tokens on a 4-thread laptop CPU can take minutes; keep answers short.
+DEFAULT_MAX_TOKENS = int(os.getenv("LOCALMIND_MAX_TOKENS", "256"))
+LLM_TIMEOUT_SECONDS = int(os.getenv("LOCALMIND_LLM_TIMEOUT", "60"))
 
 
 class AskRequest(BaseModel):
@@ -43,11 +46,13 @@ async def ask_question(req: AskRequest) -> AskResponse:
         )
 
     try:
+        started = time.perf_counter()
         # Timeout pour éviter les blocages
         answer = await asyncio.wait_for(
             ask_llm(question, max_tokens=DEFAULT_MAX_TOKENS),
             timeout=LLM_TIMEOUT_SECONDS
         )
+        print(f"[ask] LLM answered in {time.perf_counter() - started:.1f}s")
         # Normalisation minimale de la réponse
         answer = (answer or "").strip()
         if not answer:

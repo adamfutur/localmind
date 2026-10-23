@@ -2,16 +2,22 @@ from fastapi import APIRouter, BackgroundTasks, HTTPException, Query
 from backend.core.file_scanner import FileScanner
 from backend.core.text_loader import TextLoader
 from backend.core.chunker import Chunker
-from backend.core.embeddings import EmbeddingModel
-from backend.core.vector_store import VectorStore
+from backend.core.embeddings import get_embedding_model
+from backend.core.vector_store import get_vector_store
 from backend.db.database import SessionLocal
 from backend.db.models import FileMetadata
+from backend.config import MAX_FILE_SIZE_BYTES, SUPPORTED_EXTENSIONS
 from sqlalchemy.orm import Session
 from datetime import datetime
 import os
+import threading
+import time
 from typing import List, Optional
 
 router = APIRouter()
+
+# Prevent two indexing runs from adding duplicate vectors at the same time.
+_indexing_lock = threading.Lock()
 
 
 def process_indexing(root_dirs: Optional[List[str]] = None):
@@ -19,52 +25,73 @@ def process_indexing(root_dirs: Optional[List[str]] = None):
     Perform indexing over the provided root directories. If none provided,
     FileScanner will use its default roots.
     """
-    scanner = FileScanner(root_dirs=root_dirs)
-    loader = TextLoader()
-    chunker = Chunker()
-    embedder = EmbeddingModel()
-    vector_store = VectorStore()
+    if not _indexing_lock.acquire(blocking=False):
+        print("[Index] Another indexing run is already in progress; skipping.")
+        return
 
-    db: Session = SessionLocal()
+    started = time.perf_counter()
+    db: Optional[Session] = None
+    vector_store = None
+    embedded_files = 0
 
-    for file_info in scanner.scan():
-        # Check if already indexed or modified
-        existing = db.query(FileMetadata).filter(FileMetadata.path == file_info['path']).first()
-        if existing and existing.modified_at == file_info['modified_at']:
-            continue
+    try:
+        scanner = FileScanner(root_dirs=root_dirs)
+        loader = TextLoader()
+        chunker = Chunker()
+        embedder = get_embedding_model()
+        vector_store = get_vector_store()
 
-        print(f"Indexing: {file_info['path']}")
+        db = SessionLocal()
 
-        # Load Content
-        text = loader.load(file_info['path'])
+        for file_info in scanner.scan():
+            # Check if already indexed or modified
+            existing = db.query(FileMetadata).filter(FileMetadata.path == file_info['path']).first()
+            if existing and existing.modified_at == file_info['modified_at']:
+                continue
 
-        # Update DB
-        if not existing:
-            meta = FileMetadata(**file_info)
-            db.add(meta)
-        else:
-            for k, v in file_info.items():
-                setattr(existing, k, v)
+            print(f"Indexing: {file_info['path']}")
 
-        db.commit()
+            # Load Content
+            text = loader.load(file_info['path'])
 
-        # Vectorize
-        if text:
-            chunks = chunker.chunk(text)
-            embeddings = embedder.embed(chunks)
+            # Update DB
+            if not existing:
+                meta = FileMetadata(**file_info)
+                db.add(meta)
+            else:
+                for k, v in file_info.items():
+                    setattr(existing, k, v)
 
-            # Store metadata for each chunk
-            metas = []
-            for chunk in chunks:
-                metas.append({
-                    "path": file_info['path'],
-                    "text": chunk
-                })
+            db.commit()
 
-            vector_store.add(embeddings, metas)
+            # Vectorize
+            if text:
+                chunks = chunker.chunk(text)
+                embeddings = embedder.embed(chunks)
 
-    db.close()
-    print("Indexing Complete")
+                # Store metadata for each chunk
+                metas = []
+                for chunk in chunks:
+                    metas.append({
+                        "path": file_info['path'],
+                        "text": chunk
+                    })
+
+                vector_store.add(embeddings, metas)
+                embedded_files += 1
+
+        print(
+            f"Indexing Complete: {embedded_files} files embedded in "
+            f"{time.perf_counter() - started:.1f}s"
+        )
+    finally:
+        try:
+            if vector_store is not None:
+                vector_store.save()
+        finally:
+            if db is not None:
+                db.close()
+            _indexing_lock.release()
 
 
 @router.post("/index")
@@ -121,8 +148,8 @@ async def index_path(path: str = Query(..., min_length=1)):
     # Prepare components
     loader = TextLoader()
     chunker = Chunker()
-    embedder = EmbeddingModel()
-    vector_store = VectorStore()
+    embedder = get_embedding_model()
+    vector_store = get_vector_store()
     db: Session = SessionLocal()
 
     def upsert_file(file_path: str):
@@ -161,12 +188,22 @@ async def index_path(path: str = Query(..., min_length=1)):
             for root, _, files in os.walk(path):
                 for f in files:
                     fp = os.path.join(root, f)
-                    # basic skip hidden
+                    # basic skip hidden and unsupported/large files
                     if os.path.basename(fp).startswith('.'):
+                        continue
+                    if os.path.splitext(f)[1].lower() not in SUPPORTED_EXTENSIONS:
+                        continue
+                    try:
+                        if os.path.getsize(fp) > MAX_FILE_SIZE_BYTES:
+                            continue
+                    except OSError:
                         continue
                     upsert_file(fp)
         else:
             upsert_file(path)
         return {"status": f"Indexed: {path}"}
     finally:
-        db.close()
+        try:
+            vector_store.save()
+        finally:
+            db.close()

@@ -1,13 +1,26 @@
 from fastapi import APIRouter, Query
 from backend.core.hybrid_search import HybridSearch
 from pydantic import BaseModel
-from typing import List, Optional
-from backend.core.vector_store import VectorStore
+from typing import List
+from backend.core.vector_store import get_vector_store
 from backend.db.database import SessionLocal
 from backend.db.models import FileMetadata
+import threading
 
 router = APIRouter()
-search_engine = HybridSearch()
+
+# Load the embedding model only when search is first used, not at startup.
+_search_engine = None
+_search_engine_lock = threading.Lock()
+
+
+def get_search_engine() -> HybridSearch:
+    global _search_engine
+    if _search_engine is None:
+        with _search_engine_lock:
+            if _search_engine is None:
+                _search_engine = HybridSearch()
+    return _search_engine
 
 class SearchResult(BaseModel):
     type: str
@@ -17,14 +30,14 @@ class SearchResult(BaseModel):
 
 @router.get("/search", response_model=List[SearchResult])
 async def search(q: str = Query(..., min_length=1), limit: int = 10):
-    results = search_engine.search(q, k=limit)
+    results = get_search_engine().search(q, k=limit)
     return results
 
 @router.get("/search-status")
 async def search_status():
-    vs = VectorStore()
-    vector_count = int(vs.index.ntotal)
-    meta_count = len(vs.metadata)
+    stats = get_vector_store().stats()
+    vector_count = stats["vectors"]
+    meta_count = stats["vector_metadata"]
 
     s = SessionLocal()
     try:

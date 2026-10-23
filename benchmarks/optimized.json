@@ -1,0 +1,41 @@
+{
+  "config": {
+    "documents": 500,
+    "queries": 10,
+    "repetitions": 10,
+    "k": 5,
+    "cache_size": 256
+  },
+  "stages": {
+    "embed_cold": {
+      "median_ms": 17.952,
+      "p95_ms": 22.327
+    },
+    "embed_warm_cache_hit": {
+      "median_ms": 0.002,
+      "p95_ms": 0.003
+    },
+    "faiss": {
+      "median_ms": 0.138,
+      "p95_ms": 0.267
+    },
+    "map_scan_old": {
+      "median_ms": 0.036,
+      "p95_ms": 0.278
+    },
+    "map_direct_new": {
+      "median_ms": 0.007,
+      "p95_ms": 0.011
+    },
+    "search_index_cold": {
+      "median_ms": 18.6,
+      "p95_ms": 22.531
+    },
+    "search_index_warm": {
+      "median_ms": 0.234,
+      "p95_ms": 0.3
+    }
+  },
+  "recall_at_k": 1.0,
+  "result_parity_vs_old_scan": true
+}

@@ -1,10 +1,3 @@
-fastapi==0.110.0
-uvicorn==0.29.0
-requests==2.31.0
-fastembed==0.2.7
-numpy==1.26.4
-# sqlite3 is built-in with Python
-python-multipart==0.0.9 # For potential form data, good practice with FastAPI
-watchdog==4.0.0
-faiss-cpu==1.8.0 # Use faiss-gpu if you have a compatible GPU setup
-# Add any other specific library versions you need
+# LocalMind has a single active dependency set.
+# Kept as a pointer so `pip install -r requirements.txt` does the right thing.
+-r backend/requirements.txt

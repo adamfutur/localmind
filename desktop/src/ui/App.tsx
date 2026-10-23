@@ -1,30 +1,32 @@
 import React, { useState } from 'react';
 import Header from './Header';
+import IndexBar from './IndexBar';
 import SearchBox from './SearchBox';
 import ResultsList from './ResultsList';
-import { askQuestion } from '../api';
+import { searchFiles } from '../api';
+import type { SearchResult } from '../api';
 
 export default function App() {
-    const [results, setResults] = useState([]);
-    const [answer, setAnswer] = useState<string | undefined>(undefined);
+    const [results, setResults] = useState<SearchResult[]>([]);
+    const [query, setQuery] = useState('');
+    const [error, setError] = useState<string | undefined>(undefined);
     const [loading, setLoading] = useState(false);
 
-    const handleSearch = async (query: string) => {
+    const handleSearch = async (nextQuery: string) => {
         setLoading(true);
-        setAnswer(undefined);
+        setError(undefined);
         setResults([]);
+        setQuery(nextQuery);
 
         try {
-            const response = await askQuestion(query);
-            setAnswer(response.answer);
-            // For now we don't have direct access to "sources" metadata in the same structure as search
-            // but in a real app we'd map sources to file objects
-            if (response.sources) {
-                setResults(response.sources.map((s: string) => ({ path: s, type: 'source' })));
-            }
+            const items = await searchFiles(nextQuery);
+            setResults(items);
         } catch (err) {
-            console.error(err);
-            setAnswer("Error communicating with LocalMind core.");
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : "Could not reach the LocalMind backend. Is it running on port 8001?"
+            );
         } finally {
             setLoading(false);
         }
@@ -33,8 +35,14 @@ export default function App() {
     return (
         <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', color: '#333' }}>
             <Header />
+            <IndexBar />
             <SearchBox onSearch={handleSearch} isLoading={loading} />
-            <ResultsList results={results} answer={answer} />
+            <ResultsList
+                results={results}
+                query={query}
+                loading={loading}
+                error={error}
+            />
         </div>
     );
 }
